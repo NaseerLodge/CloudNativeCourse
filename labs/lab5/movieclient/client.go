@@ -7,8 +7,9 @@ import (
 	"os"
 	"time"
 
+	"labs/lab5/movieapi"
+
 	"google.golang.org/grpc"
-	"home/naseer/Desktop/cloud_native/labs/lab5/movieapi"
 )
 
 const (

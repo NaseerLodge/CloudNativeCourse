@@ -4,17 +4,13 @@ package main
 import (
 	"context"
 	"errors"
+	"labs/lab5/movieapi"
 	"log"
 	"net"
 	"strconv"
 	"strings"
 
 	"google.golang.org/grpc"
-	"home/naseer/Desktop/cloud_native/labs/lab5/movieapi"
-)
-
-const (
-	port = ":50051"
 )
 
 const (
