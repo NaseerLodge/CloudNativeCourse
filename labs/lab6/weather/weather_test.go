@@ -3,6 +3,7 @@ package weather
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -11,15 +12,21 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+// Tests response
 func TestParseResponse(t *testing.T) {
 	t.Parallel()
-	data, err := os.ReadFile("testdata/weather_data.json")
+	// Reads from the JSON file
+	data, err := ioutil.ReadFile("testdata/weather_data.json")
 	if err != nil {
 		t.Fatal(err)
 	}
 	want := Conditions{
+		//Conditions from weather_data
 		Summary:     "Clouds",
 		Temperature: 281.33,
+		Pressure:    1000,
+		Humidity:    90,
+		Speed:       3.09,
 	}
 	got, err := ParseResponse(data)
 	if err != nil {
@@ -40,7 +47,7 @@ func TestParseResponseEmpty(t *testing.T) {
 
 func TestParseResponseInvalid(t *testing.T) {
 	t.Parallel()
-	data, err := os.ReadFile("testdata/weather_invalid_data.json")
+	data, err := ioutil.ReadFile("testdata/weather_invalid_data.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,6 +115,9 @@ func TestGetWeather(t *testing.T) {
 	want := Conditions{
 		Summary:     "Clouds",
 		Temperature: 281.33,
+		Pressure:    1000,
+		Humidity:    90,
+		Speed:       3.09,
 	}
 	got, err := c.GetWeather("Paris,FR")
 	if err != nil {
@@ -124,6 +134,81 @@ func TestFahrenheit(t *testing.T) {
 	want := 33.8
 	got := input.Fahrenheit()
 	if !cmp.Equal(want, got) {
+		t.Error(cmp.Diff(want, got))
+	}
+}
+
+func TestPressure(t *testing.T) {
+	t.Parallel()
+	// Tests added functions, that is to say tests if the different parameters meant to be returned are correct
+	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		f, err := os.Open("testdata/weather_data.json")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer f.Close()
+		io.Copy(w, f)
+	}))
+	defer ts.Close()
+
+	c := NewClient("dummyAPIkey")
+	c.BaseURL = ts.URL
+	c.HTTPClient = ts.Client()
+	// If Pressure is not equal to 1000, it throws an error
+	input, _ := c.GetWeather("Paris,FR")
+	want := Pressure(1000)
+	got := input.Pressure
+	if !cmp.Equal(want, got) {
+		fmt.Println("Pressure not working, is equal to", want)
+		t.Error(cmp.Diff(want, got))
+	}
+}
+
+func TestHumidity(t *testing.T) {
+	t.Parallel()
+	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		f, err := os.Open("testdata/weather_data.json")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer f.Close()
+		io.Copy(w, f)
+	}))
+	// Tests if weather.go successfully sends information regarding Humidity
+	// Otherwise throws error
+	defer ts.Close()
+	c := NewClient("dummyAPIkey")
+	c.BaseURL = ts.URL
+	c.HTTPClient = ts.Client()
+	input, _ := c.GetWeather("Paris,FR")
+	want := Humidity(90)
+	got := input.Humidity
+	if !cmp.Equal(want, got) {
+		fmt.Println("Humidity not working, is equal to", want)
+		t.Error(cmp.Diff(want, got))
+	}
+}
+
+func TestWindspeed(t *testing.T) {
+	t.Parallel()
+	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		f, err := os.Open("testdata/weather_data.json")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer f.Close()
+		io.Copy(w, f)
+	}))
+	// Tests if returns correct information about windspeed.
+	defer ts.Close()
+	c := NewClient("dummyAPIkey")
+	c.BaseURL = ts.URL
+	c.HTTPClient = ts.Client()
+	input, _ := c.GetWeather("Paris,FR")
+	want := Speed(3.09)
+	got := input.Speed
+	if !cmp.Equal(want, got) {
+		fmt.Println("Windspeed not working, is equal to", want)
 		t.Error(cmp.Diff(want, got))
 	}
 }

@@ -13,6 +13,15 @@ import (
 // Temperature Datatype
 type Temperature float64
 
+// Pressure Datatype
+type Pressure float64
+
+// Humidity Datatype
+type Humidity float64
+
+// Wind Datatype
+type Speed float64
+
 // Converts Kelvin to Fahrenheit
 func (t Temperature) Fahrenheit() float64 {
 	return (float64(t)-273.15)*(9.0/5.0) + 32.0
@@ -23,18 +32,27 @@ func (t Temperature) Fahrenheit() float64 {
 type Conditions struct {
 	Summary     string
 	Temperature Temperature
+	Pressure    Pressure
+	Humidity    Humidity
+	Speed       Speed
 }
 
+// Create a data structure to represent these response fields.
 type OWMResponse struct {
 	Weather []struct {
 		Main string
 	}
 	Main struct {
-		Temp Temperature
+		Temp     Temperature
+		Pressure Pressure
+		Humidity Humidity
+	}
+	Wind struct {
+		Speed Speed
 	}
 }
 
-// Struct Clinet
+// Struct Client
 // APIKey     -> Custom key provided by openweather to change stuff on the website
 // BaserURL   -> "https://api.openweathermap.org"
 // HTTPClient ->  HTTP client from the net/http package
@@ -44,7 +62,7 @@ type Client struct {
 	HTTPClient *http.Client
 }
 
-// Client Constructor
+// Client constructor
 func NewClient(key string) *Client {
 	return &Client{
 		APIKey:  key,
@@ -55,14 +73,16 @@ func NewClient(key string) *Client {
 	}
 }
 
-// Takes in the city as input, and generates the appropriate URL
+// Input -> City
+// Output -> URL
 func (c Client) FormatURL(location string) string {
 	location = url.QueryEscape(location)
 	return fmt.Sprintf("%s/data/2.5/weather?q=%s&appid=%s", c.BaseURL, location, c.APIKey)
 
 }
 
-// Makes the GET request to the service with the URL
+// Makes GET request to the service with the URL,
+// and calls a ParseReponse() helper method to parse the JSON data.
 func (c *Client) GetWeather(location string) (Conditions, error) {
 	URL := c.FormatURL(location)
 	resp, err := c.HTTPClient.Get(URL)
@@ -87,7 +107,7 @@ func (c *Client) GetWeather(location string) (Conditions, error) {
 	return conditions, nil
 }
 
-// Helper method to parse the JSON data
+// Helper method to parse the JSON data.
 func ParseResponse(data []byte) (Conditions, error) {
 	var resp OWMResponse
 	err := json.Unmarshal(data, &resp)
@@ -100,6 +120,9 @@ func ParseResponse(data []byte) (Conditions, error) {
 	conditions := Conditions{
 		Summary:     resp.Weather[0].Main,
 		Temperature: resp.Main.Temp,
+		Pressure:    resp.Main.Pressure,
+		Humidity:    resp.Main.Humidity,
+		Speed:       resp.Wind.Speed,
 	}
 	return conditions, nil
 }
@@ -113,9 +136,6 @@ func Get(location, key string) (Conditions, error) {
 	return conditions, nil
 }
 
-// A RunCLI() method is included for the user to run the client on the command line. The method
-// parses command line arguments of user input using os.Args, and extracts the API key stored in
-// an environment variable.
 func RunCLI() {
 	if len(os.Args) < 2 {
 		fmt.Fprintf(os.Stderr, "Usage: %s LOCATION\n\nExample: %[1]s London,UK", os.Args[0])
@@ -123,8 +143,6 @@ func RunCLI() {
 	}
 	location := os.Args[1]
 	key := os.Getenv("OPENWEATHERMAP_API_KEY")
-	fmt.Println("KEYYYYY")
-	fmt.Println(key)
 	if key == "" {
 		fmt.Fprintln(os.Stderr, "Please set the environment variable OPENWEATHERMAP_API_KEY")
 		os.Exit(1)
@@ -134,6 +152,13 @@ func RunCLI() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	fmt.Printf("%s %.1fº\n", conditions.Summary, conditions.Temperature.Fahrenheit())
+
+	//fmt.Printf("%s %.1fº\n", conditions.Summary, conditions.Temperature.Fahrenheit())
+	fmt.Println("Summary    -> ", conditions.Summary)
+	fmt.Print("Temperature -> ", conditions.Temperature.Fahrenheit())
+	fmt.Print("º\n")
+	fmt.Println("Pressure   -> ", conditions.Pressure)
+	fmt.Println("Humidity   -> ", conditions.Humidity)
+	fmt.Println("Wind Speed -> ", conditions.Speed)
 
 }
