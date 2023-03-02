@@ -2,16 +2,13 @@
 syntax = "proto3";
 
 //option go_package = "gitlab.com/arunravindran/cloudnativecourse/lab5-grpc/movieapi";
-option go_package = "home/naseer/Desktop/cloud_native/labs/lab5/movieapi";
-
+option go_package = "lab5/movieapi";
 
 package movieapi;
 
 service MovieInfo {
 	// Sends a requeest for movie info
 	rpc GetMovieInfo (MovieRequest) returns (MovieReply) {}
-	// Adds a movie data
-	rpc SetMovieInfo (MovieData) returns (Status) {}
 }
 
 // The request message containing movie name
@@ -27,15 +24,3 @@ message MovieReply {
 	
 }
 
-// request message to set movie info
-message MovieData {
-	string title = 1;
-	int32 year = 2;
-	string director = 3;
-	repeated string cast = 4;
-}
-
-// The response message containing status of SetMovieInfo rpc
-message Status {
-	string code = 1;
-}

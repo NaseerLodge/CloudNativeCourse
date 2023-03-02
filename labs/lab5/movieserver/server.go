@@ -3,12 +3,14 @@ package main
 
 import (
 	"context"
-	"errors"
-	"labs/lab5/movieapi"
 	"log"
 	"net"
 	"strconv"
 	"strings"
+
+	//"gitlab.com/arunravindran/cloudnativecourse/lab5-grpc/movieapi"
+	//"labs/lab5/movieapi"
+	"github.com/NaseerLodge/CloudNativeCourse/labs/lab5/movieapi"
 
 	"google.golang.org/grpc"
 )
@@ -46,30 +48,6 @@ func (s *server) GetMovieInfo(ctx context.Context, in *movieapi.MovieRequest) (*
 
 	return reply, nil
 
-}
-
-// GetMovieInfo implements movieapi.MovieInfoServer
-func (s *server) SetMovieInfo(ctx context.Context, in *movieapi.MovieData) (*movieapi.Status, error) {
-	// Get movie data
-	title := in.GetTitle()
-	year := in.GetYear()
-	director := in.GetDirector()
-	cast := in.GetCast()
-
-	log.Printf("title: %v ", title, " year: %v ", year, " director: %v ", director, "\n cast: ", cast)
-
-	reply := &movieapi.Status{}
-	reply.Code = "failed"
-
-	if _, ok := moviedb[title]; !ok { // update only if Title not present in database
-		moviedata := []string{strconv.Itoa(int(year)), title}
-		moviedata = append(moviedata, cast...)
-		moviedb[title] = moviedata //add movie data into database
-		reply.Code = "success"
-	} else {
-		return reply, errors.New("movie already exist in database")
-	}
-	return reply, nil
 }
 
 func main() {

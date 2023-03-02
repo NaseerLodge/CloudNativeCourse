@@ -7,8 +7,7 @@ import (
 	"os"
 	"time"
 
-	"labs/lab5/movieapi"
-
+	"gitlab.com/arunravindran/cloudnativecourse/lab5-grpc/movieapi"
 	"google.golang.org/grpc"
 )
 
@@ -39,17 +38,4 @@ func main() {
 		log.Fatalf("could not get movie info: %v", err)
 	}
 	log.Printf("Movie Info for %s %d %s %v", title, r.GetYear(), r.GetDirector(), r.GetCast())
-
-	ret, err := c.SetMovieInfo(ctx, &movieapi.MovieData{Title: "Harry Potter", Year: 2001, Director: "Chris Columbus", Cast: []string{"Daniel Radcliffe, Rupert Grint, Emma Watson"}})
-
-	if err != nil {
-		log.Printf("SetMovieInfo status: %v", ret)
-		log.Fatalf("could not set movie info: %v", err)
-	}
-
-	r2, err := c.GetMovieInfo(ctx, &movieapi.MovieRequest{Title: "Harry Potter"})
-	if err != nil {
-		log.Fatalf("could not get movie info: %v", err)
-	}
-	log.Printf("Movie Info for Harry Potter: %d %s %v", r2.GetYear(), r2.GetDirector(), r2.GetCast())
 }

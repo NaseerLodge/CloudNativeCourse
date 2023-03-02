@@ -9,7 +9,7 @@ require (
 )
 
 require (
-	github.com/NaseerLodge/CloudNativeCourse/labs/lab6 v0.0.0-20230221182357-1bc2d4d3b2da // indirect
+	github.com/NaseerLodge/CloudNativeCourse/labs v0.0.0-20230221182357-1bc2d4d3b2da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/sys v0.4.0 // indirect

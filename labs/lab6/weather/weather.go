@@ -155,7 +155,7 @@ func RunCLI() {
 
 	//fmt.Printf("%s %.1fº\n", conditions.Summary, conditions.Temperature.Fahrenheit())
 	fmt.Println("Summary    -> ", conditions.Summary)
-	fmt.Print("Temperature -> ", conditions.Temperature.Fahrenheit())
+	fmt.Print("Temperature-> ", conditions.Temperature.Fahrenheit())
 	fmt.Print("º\n")
 	fmt.Println("Pressure   -> ", conditions.Pressure)
 	fmt.Println("Humidity   -> ", conditions.Humidity)

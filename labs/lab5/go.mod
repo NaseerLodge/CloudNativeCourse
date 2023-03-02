@@ -1,4 +1,4 @@
-module github.com/NaseerLodge/CloudNativeCourse
+module google.golang.org
 
 go 1.19
 
