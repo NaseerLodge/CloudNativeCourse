@@ -7,8 +7,11 @@ option go_package = "lab5/movieapi";
 package movieapi;
 
 service MovieInfo {
-	// Sends a requeest for movie info
+	// Sends a request for movie info
 	rpc GetMovieInfo (MovieRequest) returns (MovieReply) {}
+
+	// Adds a movie data
+	rpc SetMovieInfo (MovieData) returns (Status) {}
 }
 
 // The request message containing movie name
@@ -24,3 +27,15 @@ message MovieReply {
 	
 }
 
+// request message to set movie info
+message MovieData {
+	string title = 1;
+	int32 year = 2;
+	string director = 3;
+	repeated string cast = 4;
+}
+
+// The response message containing status of SetMovieInfo rpc
+message Status {
+	string code = 1;
+}
