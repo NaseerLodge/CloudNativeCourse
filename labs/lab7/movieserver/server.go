@@ -9,8 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	//"gitlab.com/arunravindran/cloudnativecourse/lab5-grpc/movieapi"
-	//"labs/lab5/movieapi"
 	"github.com/NaseerLodge/CloudNativeCourse/labs/lab7/movieapi"
 
 	"google.golang.org/grpc"
