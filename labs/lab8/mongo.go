@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	mongodbEndpoint = "mongodb://172.17.0.3:27017" // Find this from the Mongo container
+	mongodbEndpoint = "mongodb://172.17.0.2" // Find this from the Mongo container
 )
 
 type Post struct {
@@ -33,13 +33,17 @@ func main() {
 		options.Client().ApplyURI(mongodbEndpoint),
 	)
 	checkError(err)
+
 	// Connect to mongo
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	err = client.Connect(ctx)
+
 	// Disconnect
 	defer client.Disconnect(ctx)
+
 	// select collection from database
 	col := client.Database("blog").Collection("posts")
+
 	// Insert one
 	res, err := col.InsertOne(ctx, &Post{
 		ID:        primitive.NewObjectID(),
@@ -49,15 +53,19 @@ func main() {
 		CreatedAt: time.Now(),
 	})
 	fmt.Printf("inserted id: %s\n", res.InsertedID.(primitive.ObjectID).Hex())
+
 	// filter posts tagged as mongodb
 	filter := bson.M{"tags": bson.M{"$elemMatch": bson.M{"$eq": "mongodb"}}}
+
 	// find one document
 	var p Post
 	if col.FindOne(ctx, filter).Decode(&p); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("post: %+v\n", p)
+
 }
+
 func checkError(err error) {
 	if err != nil {
 		log.Fatal(err)
