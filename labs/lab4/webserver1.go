@@ -1,11 +1,18 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"sync"
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
@@ -16,7 +23,7 @@ func main() {
 	mux.HandleFunc("/update", db.update)
 	mux.HandleFunc("/create", db.create)
 	mux.HandleFunc("/delete", db.delete)
-	log.Fatal(http.ListenAndServe("localhost:8000", mux))
+	log.Fatal(http.ListenAndServe(":8000", mux))
 }
 
 var RWLock sync.RWMutex
@@ -91,5 +98,44 @@ func (db database) delete(w http.ResponseWriter, req *http.Request) {
 		fmt.Fprintf(w, "no such item: %q\n", item)
 	}
 	RWLock.Unlock()
+
+}
+
+func main() {
+	// create a mongo client
+	client, err := mongo.NewClient(
+		options.Client().ApplyURI(mongodbEndpoint),
+	)
+	checkError(err)
+
+	// Connect to mongo
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+
+	// Disconnect
+	defer client.Disconnect(ctx)
+
+	// select collection from database
+	col := client.Database("blog").Collection("posts")
+
+	// Insert one
+	res, err := col.InsertOne(ctx, &Post{
+		ID:        primitive.NewObjectID(),
+		Title:     "post",
+		Tags:      []string{"mongodb"},
+		Body:      `MongoDB is a NoSQL database`,
+		CreatedAt: time.Now(),
+	})
+	fmt.Printf("inserted id: %s\n", res.InsertedID.(primitive.ObjectID).Hex())
+
+	// filter posts tagged as mongodb
+	filter := bson.M{"tags": bson.M{"$elemMatch": bson.M{"$eq": "mongodb"}}}
+
+	// find one document
+	var p Post
+	if col.FindOne(ctx, filter).Decode(&p); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("post: %+v\n", p)
 
 }
