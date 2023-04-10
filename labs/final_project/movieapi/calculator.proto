@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package = "github.com/NaseerLodge/CloudNativeCourse/labs/final_project/calculator";
+
+package calculator;
+
+
+service Calculator {
+    rpc Addition(AdditionRequest) returns (Result) {}
+}
+
+message AdditionRequest {
+    int32 first_number = 1;
+    int32 second_number = 2;
+}
+
+message Result {
+    int32 result = 1;
+}
