@@ -1,3 +1,36 @@
+package main
+
+import (
+	"context"
+	"fmt"
+
+	pb "github.com/NaseerLodge/CloudNativeCourse/labs/final_project/movieapi"
+	"google.golang.org/grpc"
+)
+
+func main() {
+	conn, err := grpc.Dial("[::]:50051", grpc.WithInsecure())
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	client := pb.NewCalculatorClient(conn)
+
+	req := &pb.AdditionRequest{
+		FirstNumber:  2,
+		SecondNumber: 3,
+	}
+
+	res, err := client.Addition(context.Background(), req)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Result: %d\n", res.Result)
+}
+
+/*
 // Package main imlements a client for movieinfo service
 package main
 
@@ -39,3 +72,4 @@ func main() {
 	}
 	log.Printf("Movie Info for %s %d %s %v", title, r.GetYear(), r.GetDirector(), r.GetCast())
 }
+*/
