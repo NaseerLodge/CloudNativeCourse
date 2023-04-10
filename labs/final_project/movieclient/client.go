@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	pb "github.com/NaseerLodge/CloudNativeCourse/labs/final_project/movieapi"
+	pb "github.com/NaseerLodge/CloudNativeCourse/labs/final_project/calculator"
 	"google.golang.org/grpc"
 )
 
