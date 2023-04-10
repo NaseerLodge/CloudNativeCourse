@@ -14,9 +14,17 @@ func main() {
 	}
 	defer conn.Close()
 
+	//fmt.Println("Enter the name of the movie: ")
+	//var s string
+	//fmt.Scanln(&s)
+
+	//fmt.Println("Enter the number of suggestions: ")
+	//var a int32
+	//fmt.Scanln(&a)
+
 	// Send an integer and a string to server
 	a := int32(10)
-	s := "Badla"
+	s := "Om Shanti Om"
 	data := make([]byte, 4+len(s))
 	binary.LittleEndian.PutUint32(data[:4], uint32(a))
 	copy(data[4:], s)

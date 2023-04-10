@@ -25,7 +25,7 @@ func main() {
 	defer conn.Close()
 	c := movieapi.NewMovieInfoClient(conn)
 
-	// Contact the server and print out its response.
+	// Contact the server and print out its response.Narayana PU College
 	title := defaultTitle
 	if len(os.Args) > 1 {
 		title = os.Args[1]
