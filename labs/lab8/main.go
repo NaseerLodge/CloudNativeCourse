@@ -5,6 +5,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
+	"strconv"
+	"sync"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -14,17 +17,23 @@ import (
 )
 
 const (
-	mongodbEndpoint = "mongodb://172.17.0.2" // Find this from the Mongo container
+	mongodbEndpoint = "mongodb://172.17.0.2:27017" // Find this from the Mongo container
 )
+
+var RWLock sync.RWMutex
+var col *mongo.Collection
+var ctx context.Context
+
+type dollars float32
+
+func (d dollars) String() string { return fmt.Sprintf("$%.2f", d) }
 
 type Post struct {
 	ID        primitive.ObjectID `bson:"_id"`
-	Title     string             `bson:"title"`
-	Body      string             `bson:"body"`
-	Tags      []string           `bson:"tags"`
-	Comments  uint64             `bson:"comments"`
+	Clothing  string             `bson:"clothing"`
+	Price     dollars            `bson:"price"`
+	Tags      string             `bson:"tags"`
 	CreatedAt time.Time          `bson:"created_at"`
-	UpdatedAt time.Time          `bson:"updated_at"`
 }
 
 func main() {
@@ -41,28 +50,12 @@ func main() {
 	// Disconnect
 	defer client.Disconnect(ctx)
 
-	// select collection from database
-	col := client.Database("blog").Collection("posts")
+	col = client.Database("blog").Collection("posts")
 
-	// Insert one
-	res, err := col.InsertOne(ctx, &Post{
-		ID:        primitive.NewObjectID(),
-		Title:     "post",
-		Tags:      []string{"mongodb"},
-		Body:      `MongoDB is a NoSQL database`,
-		CreatedAt: time.Now(),
-	})
-	fmt.Printf("inserted id: %s\n", res.InsertedID.(primitive.ObjectID).Hex())
-
-	// filter posts tagged as mongodb
-	filter := bson.M{"tags": bson.M{"$elemMatch": bson.M{"$eq": "mongodb"}}}
-
-	// find one document
-	var p Post
-	if col.FindOne(ctx, filter).Decode(&p); err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("post: %+v\n", p)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/list", list)
+	mux.HandleFunc("/create", create)
+	log.Fatal(http.ListenAndServe(":8000", mux))
 
 }
 
@@ -70,4 +63,54 @@ func checkError(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func list(w http.ResponseWriter, req *http.Request) {
+
+	cursor, err := col.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer cursor.Close(ctx)
+	for cursor.Next(ctx) {
+		var episode bson.M
+		if err = cursor.Decode(&episode); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(episode)
+	}
+
+}
+
+func create(w http.ResponseWriter, req *http.Request) {
+
+	item := req.URL.Query().Get("item")
+	price := req.URL.Query().Get("price")
+	priceFloat, _ := strconv.ParseFloat(price, 32)
+
+	fmt.Println("ITEM : ", item)
+	fmt.Println("PRICE: ", priceFloat)
+
+	res, err := col.InsertOne(ctx, &Post{
+		ID:        primitive.NewObjectID(),
+		Clothing:  item,
+		Price:     dollars(priceFloat),
+		Tags:      "clothing",
+		CreatedAt: time.Now(),
+	})
+
+	if err == nil {
+		fmt.Printf("inserted id: %s\n", res.InsertedID.(primitive.ObjectID).Hex())
+	}
+
+}
+
+func delete(w http.ResponseWriter, req *http.Request) {
+
+	item := req.URL.Query().Get("item")
+	result, err := col.DeleteOne(ctx, bson.M{"clothing": item})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("DeleteOne removed %v document(s)\n", result.DeletedCount)
 }
