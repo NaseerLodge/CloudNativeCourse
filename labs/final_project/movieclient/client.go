@@ -2,32 +2,41 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"log"
+	"os"
+	"time"
 
-	pb "github.com/NaseerLodge/CloudNativeCourse/labs/final_project/calculator"
+	"github.com/NaseerLodge/CloudNativeCourse/labs/final_project/movieapi"
 	"google.golang.org/grpc"
 )
 
+const (
+	address      = "localhost:50051"
+	defaultTitle = "Pulp fiction"
+)
+
 func main() {
-	conn, err := grpc.Dial("[::]:50051", grpc.WithInsecure())
+	// Set up a connection to the server.
+	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
-		panic(err)
+		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
+	c := movieapi.NewMovieInfoClient(conn)
 
-	client := pb.NewCalculatorClient(conn)
-
-	req := &pb.AdditionRequest{
-		FirstNumber:  2,
-		SecondNumber: 3,
+	// Contact the server and print out its response.
+	title := defaultTitle
+	if len(os.Args) > 1 {
+		title = os.Args[1]
 	}
-
-	res, err := client.Addition(context.Background(), req)
+	// Timeout if server doesn't respond
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	r, err := c.GetMovieInfo(ctx, &movieapi.MovieRequest{Title: title})
 	if err != nil {
-		panic(err)
+		log.Fatalf("could not get movie info: %v", err)
 	}
-
-	fmt.Printf("Result: %d\n", res.Result)
+	log.Printf("Movie Info for %s %d %s %v", title, r.GetYear(), r.GetDirector(), r.GetCast())
 }
 
 /*
