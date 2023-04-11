@@ -3,7 +3,7 @@ module labs
 go 1.19
 
 require (
-	github.com/NaseerLodge/CloudNativeCourse v0.0.0-20230410194530-b5d043045b06 // indirect
+	github.com/NaseerLodge/CloudNativeCourse v0.0.0-20230410232554-3b965bfff371 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
