@@ -1,3 +1,3 @@
-module github.com/NaseeLodge/CloudNativeCourse
+module github.com/NaseerLodge/CloudNativeCourse
 
 go 1.19
