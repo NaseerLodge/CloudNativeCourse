@@ -1,0 +1,11 @@
+<!-- recommendations.html -->
+
+<h1>Recommended Movies</h1>
+<ul>
+{% for movie in recommended_movies %}
+    <li>{{ movie }}</li>
+{% endfor %}
+</ul>
+
+<!-- Add a button that navigates back to the home page -->
+<button onclick="window.location.href='/';">Back to Home Page</button>
