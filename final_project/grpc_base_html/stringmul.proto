@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package stringmul;
+
+message StringRequest {
+  string str = 1;
+  int32 num = 2;
+}
+
+message StringArray {
+  repeated string strings = 1;
+}
+
+service StringMul {
+  rpc Multiply (StringRequest) returns (StringArray) {}
+}
