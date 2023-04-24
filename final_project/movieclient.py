@@ -9,9 +9,3 @@ def movieapi(st, n):
         request = movieapi_pb2.MovieRecommendation(moviename=st, no_of_recommendations=n)
         response = stub.Movie_Recommendation_by_cnn(request)
         return response.Recommended_Movies
-
-    
-
-
-if __name__ == '__main__':
-    print(movieapi("Badla", 10))

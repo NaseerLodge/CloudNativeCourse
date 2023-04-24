@@ -9,6 +9,8 @@ import grpc
 import movieapi_pb2
 import movieapi_pb2_grpc
 from concurrent import futures
+from pymongo import MongoClient
+import sys
 
 """# Loading Dataset
 
@@ -23,8 +25,6 @@ netflix_df.head()
 # Replacing all NaN values with "missing"
 netflix_df.fillna('missing', inplace = True)
 netflix_df.head()
-
-netflix_df.info()
 
 # Checking if there are any NaN still left
 netflix_df.isnull().sum()
@@ -163,9 +163,20 @@ def serve():
     movieapi_pb2_grpc.add_Movie_RecommendationServicer_to_server(Movie_RecommendationServicer(), server)
     server.add_insecure_port('[::]:50051')
     server.start()
+    print("Server is running")
     server.wait_for_termination()
 
-if __name__ == '__main__':
+
+
+try:
     serve()
+except KeyboardInterrupt:
+    # create a client instance
+    client = MongoClient()
 
+    # specify the name of the database to clear
+    database_name = "movie_cache"
 
+    # drop the database
+    client.drop_database(database_name)
+    sys.exit(0)

@@ -1,11 +1,78 @@
-<!-- recommendations.html -->
-
-<h1>Recommended Movies</h1>
-<ul>
-{% for movie in recommended_movies %}
-    <li>{{ movie }}</li>
-{% endfor %}
-</ul>
-
-<!-- Add a button that navigates back to the home page -->
-<button onclick="window.location.href='/';">Back to Home Page</button>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Movie Recommendations</title>
+    <style>
+        body {
+            position: relative;
+            margin: 0;
+            padding-bottom: 100px;
+        }
+        
+        ul {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-gap: 20px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        li {
+            border: 3px solid #000000;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Add CSS for button container */
+        #button-container {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #000000;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        /* Add CSS for button text */
+        #button-container button {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            outline: none;
+            background-color: transparent;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Recommended Movies</h1>
+        <ul>
+            {% for movie in movies %}
+                <li>
+                    <h2>{{ movie[0] }} ({{ movie[1] }})</h2>
+                    <img src="{{ movie[5] }}" alt="Movie Poster">
+                    <p>Released: {{ movie[2] }}</p>
+                    <p>Genre: {{ movie[3] }}</p>
+                    <p>Language: {{ movie[4] }}</p>
+                    <p>Type: {{ movie[6] }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <!-- Add container for button -->
+    <div id="button-container">
+        <!-- Add button with white text -->
+        <button onclick="window.location.href='/';">Back to Home Page</button>
+    </div>
+</body>
+</html>
